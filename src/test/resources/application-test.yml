@@ -1,0 +1,60 @@
+spring:
+  application:
+    name: srv-usuario-test
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        jdbc:
+          batch_size: 20
+          fetch_size: 100
+
+  datasource:
+    url: jdbc:h2:mem:srv_usuario_test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      auto-commit: false
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+      indent-output: true
+    deserialization:
+      fail-on-unknown-properties: false
+
+  sql:
+    init:
+      mode: never
+
+  flyway:
+    enabled: false
+
+server:
+  port: 0  # Random port for tests
+  servlet:
+    context-path: /api/v1
+
+logging:
+  level:
+    root: INFO
+    com.viafluvial: DEBUG
+    org.springframework.test: WARN
+    org.hibernate.sql: DEBUG
+
+springdoc:
+  swagger-ui:
+    enabled: false
