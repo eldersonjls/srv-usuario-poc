@@ -1,8 +1,10 @@
 package com.viafluvial.srvusuario.application.mapper;
 
 import com.viafluvial.srvusuario.application.dto.PassengerDTO;
-import com.viafluvial.srvusuario.domain.entity.Passenger;
+import com.viafluvial.srvusuario.domain.model.Passenger;
 import org.mapstruct.*;
+
+import java.util.Locale;
 
 /**
  * Mapper para conversão entre Passenger entity e DTOs.
@@ -15,24 +17,27 @@ public interface PassengerMapper {
     /**
      * Converte Passenger entity para PassengerDTO.
      */
-    @Mapping(target = "userId", source = "user.id")
     PassengerDTO toDTO(Passenger passenger);
 
     /**
      * Converte PassengerDTO para Passenger entity.
      */
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", ignore = true)
     @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
-    Passenger toEntity(PassengerDTO dto);
+    Passenger toDomain(PassengerDTO dto);
 
-    /**
-     * Atualiza uma entidade Passenger existente com dados do DTO.
-     */
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
-    void updateEntity(@MappingTarget Passenger passenger, PassengerDTO dto);
+    default Passenger.CabinType map(String cabinType) {
+        if (cabinType == null || cabinType.isBlank()) {
+            return null;
+        }
+        return Passenger.CabinType.valueOf(cabinType.trim().toUpperCase(Locale.ROOT));
+    }
+
+    default String map(Passenger.CabinType cabinType) {
+        if (cabinType == null) {
+            return null;
+        }
+        return cabinType.name();
+    }
 }

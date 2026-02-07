@@ -2,3 +2,7 @@ spring:
   flyway:
     # Em dev, mantém apenas migrations versionadas
     locations: classpath:db/migration
+
+app:
+  security:
+    enabled: false

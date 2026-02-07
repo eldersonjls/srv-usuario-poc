@@ -2,7 +2,7 @@ package com.viafluvial.srvusuario.application.mapper;
 
 import com.viafluvial.srvusuario.application.dto.UserDTO;
 import com.viafluvial.srvusuario.application.dto.UserCreateDTO;
-import com.viafluvial.srvusuario.domain.entity.User;
+import com.viafluvial.srvusuario.domain.model.User;
 import org.mapstruct.*;
 
 import java.time.LocalDateTime;
@@ -31,14 +31,5 @@ public interface UserMapper {
     @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "lastLogin", ignore = true)
-    User toEntity(UserCreateDTO dto);
-
-    /**
-     * Atualiza uma entidade User existente com dados do DTO.
-     */
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "passwordHash", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
-    void updateEntity(@MappingTarget User user, UserDTO dto);
+    User toDomain(UserCreateDTO dto);
 }

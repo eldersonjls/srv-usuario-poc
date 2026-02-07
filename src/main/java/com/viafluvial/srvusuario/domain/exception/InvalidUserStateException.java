@@ -1,6 +1,6 @@
 package com.viafluvial.srvusuario.domain.exception;
 
-import com.viafluvial.srvusuario.domain.entity.User;
+import com.viafluvial.srvusuario.domain.model.UserStatus;
 import java.util.UUID;
 
 /**
@@ -9,10 +9,10 @@ import java.util.UUID;
 public class InvalidUserStateException extends RuntimeException {
 
     private final UUID userId;
-    private final User.UserStatus currentStatus;
+    private final UserStatus currentStatus;
     private final String operation;
 
-    public InvalidUserStateException(UUID userId, User.UserStatus currentStatus, String operation) {
+    public InvalidUserStateException(UUID userId, UserStatus currentStatus, String operation) {
         super(String.format("Não é possível realizar '%s' para usuário '%s' com status '%s'", 
             operation, userId, currentStatus));
         this.userId = userId;
@@ -24,7 +24,7 @@ public class InvalidUserStateException extends RuntimeException {
         return userId;
     }
 
-    public User.UserStatus getCurrentStatus() {
+    public UserStatus getCurrentStatus() {
         return currentStatus;
     }
 

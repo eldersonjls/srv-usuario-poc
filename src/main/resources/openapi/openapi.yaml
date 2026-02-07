@@ -1,0 +1,1374 @@
+openapi: 3.0.3
+info:
+  title: ViaFluvial User Service API
+  version: 1.0.0
+servers:
+  - url: /api/v1
+tags:
+  - name: Users
+  - name: Passengers
+  - name: Boatmen
+  - name: Agencies
+  - name: Admins
+  - name: Approvals
+paths:
+  /users:
+    post:
+      tags: [Users]
+      summary: Create user
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateDTO'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '400':
+          description: Invalid request
+        '409':
+          description: Email already exists
+    get:
+      tags: [Users]
+      summary: Search users
+      operationId: searchUsers
+      parameters:
+        - name: email
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/UserType'
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/UserStatus'
+        - name: emailVerified
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: createdFrom
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: createdTo
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 20
+      responses:
+        '200':
+          description: Paged users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedUserResponse'
+
+  /users/{id}:
+    get:
+      tags: [Users]
+      summary: Get user by id
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '404':
+          description: User not found
+    put:
+      tags: [Users]
+      summary: Update user
+      operationId: updateUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDTO'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '404':
+          description: User not found
+        '400':
+          description: Invalid request
+    delete:
+      tags: [Users]
+      summary: Delete user
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User deleted
+        '404':
+          description: User not found
+
+  /users/email/{email}:
+    get:
+      tags: [Users]
+      summary: Get user by email
+      operationId: getUserByEmail
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '404':
+          description: User not found
+
+  /users/type/{userType}:
+    get:
+      tags: [Users]
+      summary: List users by type
+      operationId: getUsersByType
+      parameters:
+        - name: userType
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/UserType'
+      responses:
+        '200':
+          description: Users by type
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDTO'
+
+  /users/exists:
+    get:
+      tags: [Users]
+      summary: Check user existence by email
+      operationId: userExists
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: Exists response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExistsResponse'
+
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get current user
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '400':
+          description: Unable to resolve user
+        '404':
+          description: User not found
+
+  /passengers:
+    post:
+      tags: [Passengers]
+      summary: Create passenger
+      operationId: createPassenger
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PassengerDTO'
+      responses:
+        '201':
+          description: Passenger created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PassengerDTO'
+        '400':
+          description: Invalid request
+        '409':
+          description: CPF already exists
+    get:
+      tags: [Passengers]
+      summary: Search passengers
+      operationId: searchPassengers
+      parameters:
+        - name: cpf
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: createdFrom
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: createdTo
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 20
+      responses:
+        '200':
+          description: Paged passengers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedPassengerResponse'
+
+  /passengers/exists:
+    get:
+      tags: [Passengers]
+      summary: Check passenger existence by cpf
+      operationId: passengerExists
+      parameters:
+        - name: cpf
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exists response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExistsResponse'
+
+  /passengers/{id}:
+    get:
+      tags: [Passengers]
+      summary: Get passenger by id
+      operationId: getPassengerById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Passenger found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PassengerDTO'
+        '404':
+          description: Passenger not found
+    put:
+      tags: [Passengers]
+      summary: Update passenger
+      operationId: updatePassenger
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PassengerDTO'
+      responses:
+        '200':
+          description: Passenger updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PassengerDTO'
+        '404':
+          description: Passenger not found
+
+  /passengers/user/{userId}:
+    get:
+      tags: [Passengers]
+      summary: Get passenger by user id
+      operationId: getPassengerByUserId
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Passenger found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PassengerDTO'
+        '404':
+          description: Passenger not found
+
+  /boatmen:
+    post:
+      tags: [Boatmen]
+      summary: Create boatman
+      operationId: createBoatman
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoatmanDTO'
+      responses:
+        '201':
+          description: Boatman created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoatmanDTO'
+        '400':
+          description: Invalid request
+        '409':
+          description: CPF or CNPJ already exists
+    get:
+      tags: [Boatmen]
+      summary: Search boatmen
+      operationId: searchBoatmen
+      parameters:
+        - name: cpf
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: cnpj
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: ratingMin
+          in: query
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: approvedFrom
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: approvedTo
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: createdFrom
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: createdTo
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 20
+      responses:
+        '200':
+          description: Paged boatmen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedBoatmanResponse'
+
+  /boatmen/exists:
+    get:
+      tags: [Boatmen]
+      summary: Check boatman existence by cpf or cnpj
+      operationId: boatmanExists
+      parameters:
+        - name: cpf
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: cnpj
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exists response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExistsResponse'
+
+  /boatmen/{id}:
+    get:
+      tags: [Boatmen]
+      summary: Get boatman by id
+      operationId: getBoatmanById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Boatman found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoatmanDTO'
+        '404':
+          description: Boatman not found
+
+  /boatmen/user/{userId}:
+    get:
+      tags: [Boatmen]
+      summary: Get boatman by user id
+      operationId: getBoatmanByUserId
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Boatman found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoatmanDTO'
+        '404':
+          description: Boatman not found
+
+  /boatmen/{id}/documents:
+    get:
+      tags: [Boatmen]
+      summary: Get boatman documents
+      operationId: getBoatmanDocuments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Documents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoatmanDocumentsDTO'
+        '404':
+          description: Boatman not found
+    patch:
+      tags: [Boatmen]
+      summary: Update boatman documents
+      operationId: updateBoatmanDocuments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoatmanDocumentsDTO'
+      responses:
+        '200':
+          description: Documents updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoatmanDocumentsDTO'
+        '404':
+          description: Boatman not found
+
+  /agencies:
+    post:
+      tags: [Agencies]
+      summary: Create agency
+      operationId: createAgency
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgencyDTO'
+      responses:
+        '201':
+          description: Agency created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgencyDTO'
+        '400':
+          description: Invalid request
+        '409':
+          description: CNPJ already exists
+    get:
+      tags: [Agencies]
+      summary: Search agencies
+      operationId: searchAgencies
+      parameters:
+        - name: cnpj
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: createdFrom
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: createdTo
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 20
+      responses:
+        '200':
+          description: Paged agencies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedAgencyResponse'
+
+  /agencies/exists:
+    get:
+      tags: [Agencies]
+      summary: Check agency existence by cnpj
+      operationId: agencyExists
+      parameters:
+        - name: cnpj
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exists response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExistsResponse'
+
+  /agencies/{id}:
+    get:
+      tags: [Agencies]
+      summary: Get agency by id
+      operationId: getAgencyById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Agency found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgencyDTO'
+        '404':
+          description: Agency not found
+    put:
+      tags: [Agencies]
+      summary: Update agency
+      operationId: updateAgency
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgencyDTO'
+      responses:
+        '200':
+          description: Agency updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgencyDTO'
+        '404':
+          description: Agency not found
+
+  /agencies/user/{userId}:
+    get:
+      tags: [Agencies]
+      summary: Get agency by user id
+      operationId: getAgencyByUserId
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Agency found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgencyDTO'
+        '404':
+          description: Agency not found
+
+  /admins:
+    post:
+      tags: [Admins]
+      summary: Create admin
+      operationId: createAdmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminDTO'
+      responses:
+        '201':
+          description: Admin created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDTO'
+        '400':
+          description: Invalid request
+
+  /admins/{id}:
+    get:
+      tags: [Admins]
+      summary: Get admin by id
+      operationId: getAdminById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Admin found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDTO'
+        '404':
+          description: Admin not found
+    put:
+      tags: [Admins]
+      summary: Update admin
+      operationId: updateAdmin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminDTO'
+      responses:
+        '200':
+          description: Admin updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDTO'
+        '404':
+          description: Admin not found
+
+  /admins/user/{userId}:
+    get:
+      tags: [Admins]
+      summary: Get admin by user id
+      operationId: getAdminByUserId
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Admin found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDTO'
+        '404':
+          description: Admin not found
+
+  /approvals:
+    post:
+      tags: [Approvals]
+      summary: Create approval
+      operationId: createApproval
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalCreateDTO'
+      responses:
+        '201':
+          description: Approval created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalDTO'
+        '400':
+          description: Invalid request
+    get:
+      tags: [Approvals]
+      summary: List approvals
+      operationId: listApprovals
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/ApprovalStatus'
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 20
+      responses:
+        '200':
+          description: Paged approvals
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedApprovalResponse'
+
+  /approvals/{id}/unblock:
+    patch:
+      tags: [Approvals]
+      summary: Unblock approval entity
+      operationId: unblockApproval
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Approval updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalDTO'
+
+  /approvals/{id}/block:
+    patch:
+      tags: [Approvals]
+      summary: Block approval entity
+      operationId: blockApproval
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Approval updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalDTO'
+
+  /approvals/{id}/approve:
+    patch:
+      tags: [Approvals]
+      summary: Approve approval entity
+      operationId: approveApproval
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Approval updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalDTO'
+
+  /approvals/{id}/activate:
+    patch:
+      tags: [Approvals]
+      summary: Activate approval entity
+      operationId: activateApproval
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Approval updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalDTO'
+
+  /approvals/{id}/request-more-info:
+    patch:
+      tags: [Approvals]
+      summary: Request more info
+      operationId: requestMoreInfo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Approval updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalDTO'
+
+components:
+  schemas:
+    UserType:
+      type: string
+      enum: [PASSENGER, BOATMAN, AGENCY, ADMIN]
+    UserStatus:
+      type: string
+      enum: [PENDING, ACTIVE, SUSPENDED, INACTIVE]
+    ApprovalEntityType:
+      type: string
+      enum: [USER, BOATMAN, AGENCY]
+    ApprovalStatus:
+      type: string
+      enum: [PENDING, MORE_INFO_REQUIRED, APPROVED, ACTIVE, BLOCKED]
+    AdminRole:
+      type: string
+      enum: [SUPER_ADMIN, ADMIN, FINANCIAL, SUPPORT]
+    CabinType:
+      type: string
+      enum: [STANDARD, EXECUTIVE, VIP, SUITE]
+
+    UserCreateDTO:
+      type: object
+      required: [userType, email, password, fullName, phone]
+      properties:
+        userType:
+          $ref: '#/components/schemas/UserType'
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        fullName:
+          type: string
+        phone:
+          type: string
+
+    UserDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userType:
+          $ref: '#/components/schemas/UserType'
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        fullName:
+          type: string
+        phone:
+          type: string
+        status:
+          $ref: '#/components/schemas/UserStatus'
+        emailVerified:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        lastLogin:
+          type: string
+          format: date-time
+
+    PassengerDTO:
+      type: object
+      required: [userId, cpf]
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        cpf:
+          type: string
+        rg:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipCode:
+          type: string
+        preferredCabinType:
+          $ref: '#/components/schemas/CabinType'
+        totalTrips:
+          type: integer
+        totalSpent:
+          type: number
+          format: double
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    BoatmanDTO:
+      type: object
+      required: [userId, cpf, cnpj, companyName]
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        cpf:
+          type: string
+        cnpj:
+          type: string
+        companyName:
+          type: string
+        rating:
+          type: number
+          format: double
+        totalTrips:
+          type: integer
+        totalRevenue:
+          type: number
+          format: double
+        approvedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    BoatmanDocumentsDTO:
+      type: object
+      properties:
+        documentCpfUrl:
+          type: string
+        documentCnpjUrl:
+          type: string
+        documentAddressProofUrl:
+          type: string
+
+    AgencyDTO:
+      type: object
+      required: [userId, companyName, cnpj]
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        companyName:
+          type: string
+        cnpj:
+          type: string
+        tradeName:
+          type: string
+        companyEmail:
+          type: string
+        companyPhone:
+          type: string
+        whatsapp:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipCode:
+          type: string
+        commissionPercent:
+          type: number
+          format: double
+        documentCnpjUrl:
+          type: string
+        documentContractUrl:
+          type: string
+        totalSales:
+          type: integer
+        totalRevenue:
+          type: number
+          format: double
+        totalCommissionPaid:
+          type: number
+          format: double
+        bankName:
+          type: string
+        bankAccount:
+          type: string
+        bankAgency:
+          type: string
+        pixKey:
+          type: string
+        adminNotes:
+          type: string
+        approvedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AdminDTO:
+      type: object
+      required: [userId, role]
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        role:
+          $ref: '#/components/schemas/AdminRole'
+        permissions:
+          type: string
+        department:
+          type: string
+        employeeId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ApprovalDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        entityType:
+          $ref: '#/components/schemas/ApprovalEntityType'
+        entityId:
+          type: string
+          format: uuid
+        type:
+          type: string
+        documents:
+          type: string
+        status:
+          $ref: '#/components/schemas/ApprovalStatus'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ApprovalCreateDTO:
+      type: object
+      required: [entityType, entityId, type]
+      properties:
+        entityType:
+          $ref: '#/components/schemas/ApprovalEntityType'
+        entityId:
+          type: string
+          format: uuid
+        type:
+          type: string
+        documents:
+          type: string
+
+    ExistsResponse:
+      type: object
+      properties:
+        exists:
+          type: boolean
+
+    PagedUserResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDTO'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+
+    PagedPassengerResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PassengerDTO'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+
+    PagedBoatmanResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoatmanDTO'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+
+    PagedAgencyResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgencyDTO'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+
+    PagedApprovalResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApprovalDTO'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer

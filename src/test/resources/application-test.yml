@@ -58,3 +58,7 @@ logging:
 springdoc:
   swagger-ui:
     enabled: false
+
+app:
+  security:
+    enabled: false

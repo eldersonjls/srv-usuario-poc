@@ -2,14 +2,14 @@ package com.viafluvial.srvusuario.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
-import com.viafluvial.srvusuario.domain.entity.User;
+import com.viafluvial.srvusuario.domain.model.UserType;
 
 @Schema(description = "DTO para criação de novo usuário")
 public class UserCreateDTO {
 
     @Schema(description = "Tipo de usuário", example = "PASSENGER")
     @NotNull(message = "Tipo de usuário é obrigatório")
-    private User.UserType userType;
+    private UserType userType;
 
     @Schema(description = "Email do usuário", example = "usuario@example.com")
     @NotBlank(message = "Email é obrigatório")
@@ -33,7 +33,7 @@ public class UserCreateDTO {
     public UserCreateDTO() {
     }
 
-    public UserCreateDTO(User.UserType userType, String email, String password, String fullName, String phone) {
+    public UserCreateDTO(UserType userType, String email, String password, String fullName, String phone) {
         this.userType = userType;
         this.email = email;
         this.password = password;
@@ -42,11 +42,11 @@ public class UserCreateDTO {
     }
 
     // Getters e Setters
-    public User.UserType getUserType() {
+    public UserType getUserType() {
         return userType;
     }
 
-    public void setUserType(User.UserType userType) {
+    public void setUserType(UserType userType) {
         this.userType = userType;
     }
 
@@ -88,13 +88,13 @@ public class UserCreateDTO {
     }
 
     public static class UserCreateDTOBuilder {
-        private User.UserType userType;
+        private UserType userType;
         private String email;
         private String password;
         private String fullName;
         private String phone;
 
-        public UserCreateDTOBuilder userType(User.UserType userType) {
+        public UserCreateDTOBuilder userType(UserType userType) {
             this.userType = userType;
             return this;
         }
