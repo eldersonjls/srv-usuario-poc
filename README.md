@@ -1,212 +1,135 @@
-# 🚀 Microsserviço – Plataforma ViaFluvial  
-**Versão:** 0.1.0 – Implementação Integral  
+# srv-usuario — ViáFluvial
 
-Microsserviço backend desenvolvido em Spring Boot, seguindo arquitetura moderna e padrões avançados de engenharia de software.
+Microserviço de gerenciamento de usuários da plataforma ViáFluvial (Spring Boot).
 
-Principais conceitos aplicados:
+**Versão do artefato:** `1.0.0` (ver `pom.xml`)  
+**Context path da API:** `/api/v1` (ver `application.yml`)
 
-- Domain-Driven Design (DDD)  
-- Clean Architecture  
-- Hexagonal Architecture (Ports & Adapters)  
-- API-First com OpenAPI  
-- Código orientado a testes  
-- Containerização com Docker  
+## Principais links (local)
 
-Este projeto serve como template oficial para os próximos microsserviços da plataforma.
+- Swagger UI: `http://localhost:8080/api/v1/swagger-ui.html`
+- OpenAPI JSON: `http://localhost:8080/api/v1/v3/api-docs`
+- Health: `http://localhost:8080/api/v1/actuator/health`
+- Prometheus: `http://localhost:8080/api/v1/actuator/prometheus`
 
----
+## Stack
 
-## 📐 Arquitetura
+- Java **21**
+- Spring Boot **3.4.1**
+- Maven
+- PostgreSQL 15
+- Flyway + JPA (Hibernate)
+- Spring Security (Resource Server JWT — via `jwk-set-uri`)
+- OpenAPI/Swagger UI (springdoc)
+- Testes: JUnit 5, H2, Testcontainers
 
-Estrutura lógica do projeto:
+## Arquitetura e estrutura
 
-Domain  
- ├── Entities  
- ├── Value Objects  
- ├── Aggregates  
- ├── Domain Services  
- └── Ports (Interfaces)  
+O projeto segue uma organização por camadas + **Ports & Adapters** (Hexagonal), com foco em separar domínio e regras de negócio da infraestrutura/web.
 
-Application  
- ├── Use Cases  
- └── DTOs  
+Estrutura principal (resumo):
 
-Infrastructure  
- ├── Controllers (REST)  
- ├── Persistence (JPA)  
- ├── External Adapters  
- └── Config  
+```
+src/main/java/com/viafluvial/srvusuario/
+	adapters/
+		in/web/           # Controllers, handlers e contratos web
+		out/              # Adapters de saída (quando aplicável)
+	application/        # Serviços de aplicação, DTOs e casos de uso
+	domain/             # Entidades e regras de negócio
+	infrastructure/     # Configurações e integrações (ex.: Spring Security)
+	config/             # Configurações adicionais
+	common/             # Utilitários e convenções
+```
 
-Bootstrap  
- └── Spring Boot Application  
+## Contrato da API (OpenAPI)
 
-Princípios adotados:
+A especificação usada no build fica em:
 
-- Domínio isolado de frameworks  
-- Dependências sempre apontam para dentro  
-- Comunicação via Ports & Adapters  
-- Casos de uso explícitos  
-- Contrato da API definido antes da implementação  
+- `src/main/resources/openapi/openapi.yaml`
 
----
+> Observação: existe também o arquivo `API_SPEC.yml` na raiz, usado como referência/documentação do repositório.
 
-## 📄 Contrato da API
+## Como executar
 
-Arquivo principal:
+### 1) Com Docker Compose (recomendado)
 
-API_SPEC.yml  
+Suba banco + aplicação:
 
-Formato OpenAPI 3 (fonte da verdade da API).
+```bash
+docker compose up --build
+# (ou) docker-compose up --build
+```
 
----
+O `docker-compose.yml` inicializa o Postgres e aplica o schema inicial via `src/main/resources/db/schema.sql`.
 
-## 🧱 Estrutura e Documentação
-
-Arquivos de apoio:
-
-ESTRUTURA_VISUAL.txt  
-FILE_INDEX.md  
-TECHNICAL_SUMMARY.md  
-
----
-
-## 🛠️ Stack Tecnológica
-
-- Java 21  
-- Spring Boot 3  
-- Maven  
-- PostgreSQL  
-- Docker  
-- Docker Compose  
-- OpenAPI  
-- JUnit  
-- Testcontainers  
-
----
-
-## ▶️ Executando Localmente
+### 2) Sem Docker (Maven)
 
 Pré-requisitos:
 
-- Java 21  
-- Docker  
-- Docker Compose  
+- Java 21
+- Um PostgreSQL acessível (local ou remoto)
 
-Execução com Docker:
+Exemplo de execução apontando para um Postgres local (ajuste conforme seu ambiente):
 
-docker-compose up --build  
+```bash
+export SPRING_DATASOURCE_URL='jdbc:postgresql://localhost:5432/postgres'
+export SPRING_DATASOURCE_USERNAME='postgres'
+export SPRING_DATASOURCE_PASSWORD='postgres'
 
-Execução sem Docker:
+mvn spring-boot:run
+```
 
-./mvnw spring-boot:run  
+## Build e testes
 
----
+```bash
+# Compila (sem testes)
+mvn clean compile
 
-## ✅ Build e Validação
+# Build completo (com testes)
+mvn clean install
 
-Scripts disponíveis:
+# Somente testes
+mvn test
+```
 
-./build.sh  
-./test-build.sh  
-./validate-build.sh  
-./diagnose-build.sh  
+Scripts auxiliares (opcionais):
 
-Arquivos de controle:
+- `./build.sh`
+- `./test-build.sh`
+- `./validate-build.sh`
+- `./diagnose-build.sh`
 
-BUILD_CHECKLIST.md  
-BUILD_VERIFICATION.md  
-VALIDATION_REPORT.md  
+## Segurança (JWT Resource Server)
 
----
+Por padrão, o profile **dev** desabilita segurança (ver `application-dev.yml`).
 
-## 🧪 Testes
+Para habilitar segurança em execução local, use:
 
-Documentação:
+- `APP_SECURITY_ENABLED=true`
+- `APP_SECURITY_JWT_JWK_SET_URI=<url do seu JWKS>`
+- (opcional) `APP_SECURITY_JWT_ROLES_CLAIM=roles`
 
-TESTING.md  
+Exemplo:
 
-Executar testes:
+```bash
+export APP_SECURITY_ENABLED=true
+export APP_SECURITY_JWT_JWK_SET_URI='https://<seu-dominio>/.well-known/jwks.json'
+mvn spring-boot:run
+```
 
-./mvnw test  
+## Lombok
 
----
+O projeto **não usa Lombok** (implementações manuais de construtores/builders/getters/setters).
 
-## 📦 Deployment
+Documento: `LOMBOK_REMOVAL_COMPLETE.md`
 
-Guia completo:
+## Documentação adicional
 
-DEPLOYMENT.md  
+- Guia rápido: `QUICKSTART.md`
+- Testes: `TESTING.md`
+- Deploy: `DEPLOYMENT.md`
+- Visão técnica: `TECHNICAL_SUMMARY.md`
 
-Inclui build da imagem, variáveis de ambiente e Docker Compose.
+## Autor
 
----
-
-## 📊 Relatórios do Projeto
-
-Arquivos incluídos:
-
-EXECUTIVE_SUMMARY.md  
-PROJECT_COMPLETION_SUMMARY.md  
-COMPLETION_REPORT.md  
-FINAL_FIX_SUMMARY.md  
-SESSION_SUMMARY.md  
-
-Esses documentos registram:
-
-- Estado final do código  
-- Correções aplicadas  
-- Validações  
-- Compilação  
-- Padronização  
-
----
-
-## 🧹 Lombok
-
-Projeto totalmente sem Lombok para maior transparência, debug facilitado e compatibilidade futura.
-
-Arquivo:
-
-LOMBOK_REMOVAL_COMPLETE.md  
-
----
-
-## 📁 Docker
-
-Arquivos principais:
-
-Dockerfile  
-docker-compose.yml  
-
----
-
-## 🎯 Objetivo
-
-Servir como base padrão para todos os microsserviços, garantindo:
-
-- Consistência arquitetural  
-- Qualidade de código  
-- Facilidade de manutenção  
-- Escalabilidade  
-- Integração com API Gateway  
-- Preparação para CI/CD  
-
----
-
-## 📌 Padrão para Novos Microsserviços
-
-Todo novo serviço deve seguir:
-
-- API-First  
-- DDD  
-- Clean Architecture  
-- Ports & Adapters  
-- Testes automatizados  
-- Docker  
-
----
-
-## 👤 Autor
-
-Elderson Jammer  
-Arquitetura & Engenharia de Plataforma
+Elderson Jammer — Arquitetura & Engenharia de Plataforma
